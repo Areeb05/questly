@@ -1,0 +1,26 @@
+name: questly
+description: An app to iteratively help humanity improve itself, one user at a time.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2 
+  shared_preferences: ^2.3.2 
+  google_mobile_ads: ^5.1.0 
+  chat_gpt_sdk: ^3.1.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
