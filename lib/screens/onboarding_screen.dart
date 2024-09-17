@@ -9,7 +9,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final List<String> _questions = [
-    'What are three areas of your life you\'d like to improve?',
+    'What are three areas of your life you\'d  to improve?',
     'Describe a personal goal you\'d like to achieve in the next year.',
     'What activities make you feel most fulfilled?'
   ];
