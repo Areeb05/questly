@@ -27,8 +27,7 @@ Provide the quest in one or two sentences.
         'Authorization': 'Bearer $_apiKey',
       },
       body: jsonEncode({
-        'model':
-            'gpt-3.5-turbo', // Use the appropriate model you have access to
+        'model': 'gpt-4o-mini', // Use the appropriate model you have access to
         'messages': [
           {'role': 'system', 'content': 'You are a helpful assistant.'},
           {'role': 'user', 'content': prompt},
