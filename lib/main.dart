@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/quest_screen.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +25,7 @@ class QuestlyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => OnboardingScreen(),
-        '/quest': (context) => QuestScreen(),
+        // '/quest': (context) => QuestScreen(),
       },
     );
   }

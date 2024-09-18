@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -18,7 +18,7 @@ class _QuestScreenState extends State<QuestScreen> {
   Timer? _timer;
   Duration _timeLeft = Duration(hours: 24);
   RewardedAd? _rewardedAd;
-  SharedPreferences? prefs;
+  late SharedPreferences prefs;
 
   @override
   void initState() {
@@ -30,8 +30,8 @@ class _QuestScreenState extends State<QuestScreen> {
 
   Future<void> _initialize() async {
     prefs = await SharedPreferences.getInstance();
-    lastQuestDate = DateTime.tryParse(prefs!.getString('lastQuestDate') ?? '');
-    streak = prefs!.getInt('streak') ?? 1;
+    lastQuestDate = DateTime.tryParse(prefs.getString('lastQuestDate') ?? '');
+    streak = prefs.getInt('streak') ?? 1;
     await _loadQuest();
     _startTimer();
     _loadRewardedAd();
@@ -44,7 +44,7 @@ class _QuestScreenState extends State<QuestScreen> {
     // Check if a new quest is needed
     if (lastQuestDate == null ||
         DateTime.now().difference(lastQuestDate!).inDays >= 1 ||
-        prefs!.getString('quest') == null) {
+        prefs.getString('quest') == null) {
       if (responses != null) {
         try {
           setState(() {
@@ -67,9 +67,9 @@ Provide the quest in one or two sentences.
           final chatCompletion = await OpenAI.instance.chat.create(
             model: "gpt-3.5-turbo",
             messages: [
-              OpenAIChatCompletionChoiceMessageModel(
+              OpenAIChatCompletionMessageModel(
+                role: OpenAIChatMessageRole.user,
                 content: prompt,
-                role: "user",
               ),
             ],
             maxTokens: 150,
@@ -83,8 +83,8 @@ Provide the quest in one or two sentences.
           });
 
           // Save quest and date
-          prefs!.setString('quest', newQuest);
-          prefs!.setString('lastQuestDate', DateTime.now().toIso8601String());
+          prefs.setString('quest', newQuest);
+          prefs.setString('lastQuestDate', DateTime.now().toIso8601String());
         } catch (e) {
           setState(() {
             quest = 'Error generating quest. Please try again later.';
@@ -95,14 +95,14 @@ Provide the quest in one or two sentences.
       } else {
         // Load existing quest
         setState(() {
-          quest = prefs!.getString('quest');
+          quest = prefs.getString('quest');
           isLoading = false;
         });
       }
     } else {
       // Load existing quest
       setState(() {
-        quest = prefs!.getString('quest');
+        quest = prefs.getString('quest');
         isLoading = false;
       });
     }
@@ -111,7 +111,7 @@ Provide the quest in one or two sentences.
   void _completeQuest() async {
     DateTime now = DateTime.now();
     DateTime lastCompletionDate =
-        DateTime.tryParse(prefs!.getString('lastCompletionDate') ?? '') ?? now;
+        DateTime.tryParse(prefs.getString('lastCompletionDate') ?? '') ?? now;
 
     if (now.difference(lastCompletionDate).inDays == 1) {
       // Continue streak
@@ -125,11 +125,11 @@ Provide the quest in one or two sentences.
       });
     }
 
-    prefs!.setInt('streak', streak);
-    prefs!.setString('lastCompletionDate', now.toIso8601String());
+    prefs.setInt('streak', streak);
+    prefs.setString('lastCompletionDate', now.toIso8601String());
 
     // Force new quest
-    prefs!.remove('quest');
+    prefs.remove('quest');
     await _loadQuest();
     _startTimer();
   }
@@ -154,7 +154,7 @@ Provide the quest in one or two sentences.
       } else {
         timer.cancel();
         // Allow user to get a new quest
-        prefs!.remove('quest');
+        prefs.remove('quest');
         _loadQuest();
       }
     });
@@ -266,3 +266,4 @@ Provide the quest in one or two sentences.
     );
   }
 }
+*/
