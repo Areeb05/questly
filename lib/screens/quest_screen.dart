@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/chatgpt_service.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class QuestScreen extends StatefulWidget {
   @override
@@ -22,13 +23,15 @@ class _QuestScreenState extends State<QuestScreen> {
   @override
   void initState() {
     super.initState();
+    // Set the OpenAI API key
+    OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
     _initialize();
   }
 
   Future<void> _initialize() async {
     prefs = await SharedPreferences.getInstance();
-    lastQuestDate = DateTime.tryParse(prefs?.getString('lastQuestDate') ?? '');
-    streak = prefs?.getInt('streak') ?? 1;
+    lastQuestDate = DateTime.tryParse(prefs!.getString('lastQuestDate') ?? '');
+    streak = prefs!.getInt('streak') ?? 1;
     await _loadQuest();
     _startTimer();
     _loadRewardedAd();
@@ -41,38 +44,65 @@ class _QuestScreenState extends State<QuestScreen> {
     // Check if a new quest is needed
     if (lastQuestDate == null ||
         DateTime.now().difference(lastQuestDate!).inDays >= 1 ||
-        prefs?.getString('quest') == null) {
+        prefs!.getString('quest') == null) {
       if (responses != null) {
         try {
           setState(() {
             isLoading = true;
           });
-          ChatGPTService api = ChatGPTService();
-          String newQuest = await api.getPersonalizedQuest(responses, streak);
+
+          // Construct the prompt
+          String prompt = '''
+You are an assistant that creates personalized daily quests for users based on their goals. Generate a quest that helps the user improve themselves, considering their responses and current streak of $streak days.
+
+User Responses:
+1. ${responses[0]}
+2. ${responses[1]}
+3. ${responses[2]}
+
+Provide the quest in one or two sentences.
+''';
+
+          // Make the API call
+          final chatCompletion = await OpenAI.instance.chat.create(
+            model: "gpt-3.5-turbo",
+            messages: [
+              OpenAIChatCompletionChoiceMessageModel(
+                content: prompt,
+                role: "user",
+              ),
+            ],
+            maxTokens: 150,
+          );
+
+          String newQuest = chatCompletion.choices.first.message.content.trim();
+
           setState(() {
             quest = newQuest;
             isLoading = false;
           });
+
           // Save quest and date
-          prefs?.setString('quest', newQuest);
-          prefs?.setString('lastQuestDate', DateTime.now().toIso8601String());
+          prefs!.setString('quest', newQuest);
+          prefs!.setString('lastQuestDate', DateTime.now().toIso8601String());
         } catch (e) {
           setState(() {
             quest = 'Error generating quest. Please try again later.';
             isLoading = false;
           });
+          print('Error: $e');
         }
       } else {
         // Load existing quest
         setState(() {
-          quest = prefs?.getString('quest');
+          quest = prefs!.getString('quest');
           isLoading = false;
         });
       }
     } else {
       // Load existing quest
       setState(() {
-        quest = prefs?.getString('quest');
+        quest = prefs!.getString('quest');
         isLoading = false;
       });
     }
@@ -81,7 +111,7 @@ class _QuestScreenState extends State<QuestScreen> {
   void _completeQuest() async {
     DateTime now = DateTime.now();
     DateTime lastCompletionDate =
-        DateTime.tryParse(prefs?.getString('lastCompletionDate') ?? '') ?? now;
+        DateTime.tryParse(prefs!.getString('lastCompletionDate') ?? '') ?? now;
 
     if (now.difference(lastCompletionDate).inDays == 1) {
       // Continue streak
@@ -95,11 +125,11 @@ class _QuestScreenState extends State<QuestScreen> {
       });
     }
 
-    prefs?.setInt('streak', streak);
-    prefs?.setString('lastCompletionDate', now.toIso8601String());
+    prefs!.setInt('streak', streak);
+    prefs!.setString('lastCompletionDate', now.toIso8601String());
 
     // Force new quest
-    prefs?.remove('quest');
+    prefs!.remove('quest');
     await _loadQuest();
     _startTimer();
   }
@@ -124,7 +154,7 @@ class _QuestScreenState extends State<QuestScreen> {
       } else {
         timer.cancel();
         // Allow user to get a new quest
-        prefs?.remove('quest');
+        prefs!.remove('quest');
         _loadQuest();
       }
     });
@@ -198,7 +228,6 @@ class _QuestScreenState extends State<QuestScreen> {
           : Padding(
               padding: EdgeInsets.all(16.0),
               child: SingleChildScrollView(
-                // Added to prevent overflow
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
